@@ -1,0 +1,12 @@
+BookingsTableIAM:
+  Effect: Allow
+  Action:
+    - dynamodb:PutItem
+    - dynamodb:Scan
+    - dynamodb:GetItem
+    - dynamodb:UpdateItem
+    - dynamodb:Query
+  Resource:
+    - ${self:custom.BookingsTable.arn}
+    - !Join ['/', [ '${self:custom.BookingsTable.arn}', 'index', 'statusAndBookingTimeIndex' ]]
+

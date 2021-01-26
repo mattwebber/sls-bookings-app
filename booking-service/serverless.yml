@@ -1,0 +1,34 @@
+service:
+  name: booking-service
+
+plugins:
+  - serverless-bundle
+  - serverless-pseudo-parameters
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  memorySize: 256
+  stage: ${opt:stage, 'dev'}
+  region: eu-west-1
+  environment:
+    BOOKINGS_TABLE_NAME: ${self:custom.BookingsTable.name}
+  iamRoleStatements:
+    - ${file(iam/BookingsTableIAM.yml):BookingsTableIAM}
+
+resources:
+  Resources:
+    BookingsTable: ${file(resources/BookingsTable.yml):BookingsTable}
+  
+functions:
+  createBooking:
+    handler: src/handlers/createBooking.handler
+    events:
+      - http:
+          method: POST
+          path: /booking
+
+custom:
+  BookingsTable:
+    name: !Ref BookingsTable
+    arn: !GetAtt BookingsTable.Arn
