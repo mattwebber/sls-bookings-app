@@ -59,7 +59,7 @@ const createBooking = async (event, context) => {
             body: JSON.stringify(newBooking),
         };
     } catch(error) {
-        console.error(error, JSON.stringify(newBooking));
+        console.error(error);
         throw new createError.InternalServerError(error);
     }
 };
