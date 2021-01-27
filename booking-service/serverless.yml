@@ -38,6 +38,11 @@ functions:
           path: /bookings
           authorizer: ${self:custom.authorizer}
 
+  processBookings:
+    handler: src/handlers/processBookings.handler
+    events:
+      - schedule: rate(5 minutes)
+
 custom:
   authorizer: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:auth-service-${self:provider.stage}-auth
   BookingsTable:
