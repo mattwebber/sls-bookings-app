@@ -2,7 +2,7 @@ import AWS from 'aws-sdk';
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
-export const getBookings = async () => {
+export const getAllBookings = async () => {
     const now = new Date();
     const params = {
         TableName: process.env.BOOKINGS_TABLE_NAME,

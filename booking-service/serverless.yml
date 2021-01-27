@@ -30,6 +30,14 @@ functions:
           path: /booking
           authorizer: ${self:custom.authorizer}
 
+  getBookings:
+    handler: src/handlers/getBookings.handler
+    events:
+      - http:
+          method: GET
+          path: /bookings
+          authorizer: ${self:custom.authorizer}
+
 custom:
   authorizer: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:auth-service-${self:provider.stage}-auth
   BookingsTable:

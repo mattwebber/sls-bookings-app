@@ -3,7 +3,7 @@ import createError from 'http-errors';
 import validator from '@middy/validator';
 import { v4 as uuid } from 'uuid';
 import commonMiddleware from '../lib/commonMiddleware';
-import { getBookings } from '../lib/getBookings';
+import { getAllBookings } from '../lib/getAllBookings';
 import createBookingSchema from '../lib/schemas/createBookingSchema';
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
@@ -20,6 +20,12 @@ const createBooking = async (event, context) => {
         throw new createError.Forbidden('Bookings must be in the future!');
     }
 
+    // Validate the booking is no further than one week into the future.
+    const oneWeekFromNow = new Date(now.getFullYear(), now.getMonth(), now.getDate()+7);
+    if(bookingTime >= oneWeekFromNow) {
+        throw new createError.Forbidden('Bookings must not be more than one week into the future!');
+    }
+
     // Validate that the booking is on a week day.
     const isWeekday = bookingTime.getDay() > 0 && bookingTime.getDay() < 6;
     if(!isWeekday) {
@@ -32,7 +38,7 @@ const createBooking = async (event, context) => {
         throw new createError.Forbidden('Bookings must be between 9am and 5pm.');
     }
 
-    const bookings = await getBookings();
+    const bookings = await getAllBookings();
     // Validate the booking slot is available.
     const isUnavailable = bookings.map(booking => booking.bookingTime).includes(bookingTime.toISOString());
     if(isUnavailable) {
