@@ -9,6 +9,7 @@ import createBookingSchema from '../lib/schemas/createBookingSchema';
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 const createBooking = async (event, context) => {
+    const { email } = event.requestContext.authorizer;
     let { bookingTime } = event.body;
     bookingTime = (new Date(bookingTime));
     bookingTime.setMinutes(0, 0, 0); // Bookings must be on the hour.
@@ -31,18 +32,18 @@ const createBooking = async (event, context) => {
         throw new createError.Forbidden('Bookings must be between 9am and 5pm.');
     }
 
+    const bookings = await getBookings();
+    // Validate the booking slot is available.
+    const isUnavailable = bookings.map(booking => booking.bookingTime).includes(bookingTime.toISOString());
+    if(isUnavailable) {
+        throw new createError.Forbidden('That time is already taken.');
+    }
+
     let newBooking;
-
     try {
-        const bookings = await getBookings();
-        const isUnavailable = bookings.includes(bookingTime.toISOString());
-        if(isUnavailable) {
-            throw new createError.Forbidden('That time is already taken.');
-        }
-
         newBooking = {
             id: uuid(),
-            customerId: uuid(),
+            customerId: email,
             status: 'OPEN',
             bookingTime: bookingTime.toISOString(),
             reminderSent: false,
@@ -56,7 +57,7 @@ const createBooking = async (event, context) => {
 
         return {
             statusCode: 201,
-            body: JSON.stringify(newBooking),
+            body: JSON.stringify({ bookingId: newBooking.id }),
         };
     } catch(error) {
         console.error(error);
