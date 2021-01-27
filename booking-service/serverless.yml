@@ -13,6 +13,7 @@ provider:
   region: eu-west-1
   environment:
     BOOKINGS_TABLE_NAME: ${self:custom.BookingsTable.name}
+    ADMINISTRATOR_EMAIL_ADDRESS: Mattwebber93@outlook.com
   iamRoleStatements:
     - ${file(iam/BookingsTableIAM.yml):BookingsTableIAM}
 
@@ -27,8 +28,10 @@ functions:
       - http:
           method: POST
           path: /booking
+          authorizer: ${self:custom.authorizer}
 
 custom:
+  authorizer: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:auth-service-${self:provider.stage}-auth
   BookingsTable:
     name: !Ref BookingsTable
     arn: !GetAtt BookingsTable.Arn
