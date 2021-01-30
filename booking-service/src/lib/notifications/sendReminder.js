@@ -5,6 +5,7 @@ const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 export const sendReminder = async booking => {
     const { bookingTime, customerId, id } = booking;
+    const bookingTimeDate = new Date(bookingTime);
 
     // Send reminder notification.
     await sqs.sendMessage({
@@ -12,7 +13,7 @@ export const sendReminder = async booking => {
         MessageBody: JSON.stringify({
             subject: 'Booking appointment reminder',
             recipient: customerId,
-            body: `We are emailing you to remind you that you have an appointment booked for ${new Date(bookingTime).toLocaleTimeString()} tomorrow`
+            body: `We are emailing you to remind you that you have an appointment booked for ${bookingTimeDate.toLocaleTimeString()} on ${bookingTimeDate.toLocaleDateString()}`
         })
     }).promise();
 
