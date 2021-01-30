@@ -1,4 +1,5 @@
 import AWS from 'aws-sdk';
+import { sendThankYou } from './notifications/sendThankYou';
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
@@ -16,4 +17,9 @@ export const closeBooking = async booking => {
     };
 
     await dynamodb.update(params).promise();
+
+    if(!booking.thankYouSent) {
+        // Send thank you email to the customer.
+        await sendThankYou(booking);
+    }
 };

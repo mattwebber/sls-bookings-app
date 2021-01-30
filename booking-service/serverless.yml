@@ -13,9 +13,10 @@ provider:
   region: eu-west-1
   environment:
     BOOKINGS_TABLE_NAME: ${self:custom.BookingsTable.name}
-    ADMINISTRATOR_EMAIL_ADDRESS: Mattwebber93@outlook.com
+    MAIL_QUEUE_URL: ${self:custom.MailQueue.url}
   iamRoleStatements:
     - ${file(iam/BookingsTableIAM.yml):BookingsTableIAM}
+    - ${file(iam/MailQueueIAM.yml):MailQueueIAM}
 
 resources:
   Resources:
@@ -48,3 +49,6 @@ custom:
   BookingsTable:
     name: !Ref BookingsTable
     arn: !GetAtt BookingsTable.Arn
+  MailQueue:
+    arn: ${cf:notification-service-${self:provider.stage}.MailQueueArn}
+    url: ${cf:notification-service-${self:provider.stage}.MailQueueUrl}

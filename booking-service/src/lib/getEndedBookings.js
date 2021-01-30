@@ -7,7 +7,7 @@ export const getEndedBookings = async () => {
     const params = {
         TableName: process.env.BOOKINGS_TABLE_NAME,
         IndexName: 'statusAndBookingTimeIndex',
-        KeyConditionExpression: '#status = :status AND bookingTime >= :now',
+        KeyConditionExpression: '#status = :status AND bookingTime <= :now',
         ExpressionAttributeValues: {
             ':status': 'OPEN',
             ':now': now.toISOString()
